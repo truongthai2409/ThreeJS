@@ -30,7 +30,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   return (
     <div style={{
       position: 'absolute',
-      top: '20px',
+      top: '10px',
       left: '20px',
       zIndex: 1000,
       background: 'rgba(0, 0, 0, 0.8)',
@@ -241,27 +241,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             Reset
           </button>
         </div>
-      </div>
-
-      {/* Instructions */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.1)',
-        padding: '12px',
-        borderRadius: '6px',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <p style={{
-          color: '#fff',
-          fontSize: '11px',
-          margin: 0,
-          opacity: 0.8,
-          lineHeight: '1.4'
-        }}>
-          <strong>Hướng dẫn:</strong><br />
-          • Scroll chuột để xoay model<br />
-          • Click các nút để thực hiện animation<br />
-          • Sử dụng chuột để di chuyển camera
-        </p>
       </div>
     </div>
   );
