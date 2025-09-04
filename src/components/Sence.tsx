@@ -7,21 +7,17 @@ import gsap from "gsap";
 import * as THREE from "three";
 import ControlPanel from "./ControlPanel";
 import ColorPicker from "./ColorPicker";
+import LoadingScreen from "./ui/LoadingScreen";
 import { MaterialManager } from "../utils/MaterialManager";
-
-interface ModelRef {
-  playAnimation: (animationName: string) => void;
-  resetRotation: () => void;
-  toggleAutoRotation: () => void;
-  getMaterialManager: () => MaterialManager | null;
-  testColorChange: () => void;
-}
+import type { ModelRef } from "../types";
+import { useLoadingProgress } from "../hooks/useLoadingProgress";
 
 const Model = forwardRef<ModelRef, {
   isAutoRotating: boolean;
   setIsAutoRotating: (value: boolean) => void;
   setAvailableAnimations: (animations: string[]) => void;
-}>(({ isAutoRotating, setIsAutoRotating, setAvailableAnimations }, ref) => {
+  onLoadingProgress: (progress: number, status: string) => void;
+}>(({ isAutoRotating, setIsAutoRotating, setAvailableAnimations, onLoadingProgress }, ref) => {
   const { scene, animations } = useGLTF("/models/spaceship.glb");
   const meshRef = useRef<THREE.Group>(null);
   const rotationRef = useRef({ x: 0, y: 0, z: 0 });
@@ -32,9 +28,10 @@ const Model = forwardRef<ModelRef, {
   // Setup animations khi component mount
   useEffect(() => {
     if (names.length > 0) {
+      onLoadingProgress(60, 'Đang xử lý animations...');
       setAvailableAnimations(names);
     }
-  }, [names, setAvailableAnimations]);
+  }, [names, setAvailableAnimations, onLoadingProgress]);
 
   // Handle animation play
   useEffect(() => {
@@ -83,9 +80,11 @@ const Model = forwardRef<ModelRef, {
   // Initialize MaterialManager
   useEffect(() => {
     if (scene && !materialManagerRef.current) {
+      onLoadingProgress(80, 'Đang quét materials...');
       materialManagerRef.current = new MaterialManager(scene);
+      onLoadingProgress(90, 'Hoàn tất khởi tạo...');
     }
-  }, [scene]);
+  }, [scene, onLoadingProgress]);
 
   // Get material manager
   const getMaterialManager = () => materialManagerRef.current;
@@ -165,6 +164,9 @@ export default function Scene() {
   const [availableParts, setAvailableParts] = useState<string[]>([]);
   const [currentColors, setCurrentColors] = useState<{ [key: string]: string }>({});
   const modelRef = useRef<ModelRef>(null);
+  
+  // Loading progress
+  const { loadingState, updateProgress, finishLoading } = useLoadingProgress();
 
   const handleAnimationPlay = (animationName: string) => {
     modelRef.current?.playAnimation(animationName);
@@ -208,10 +210,17 @@ export default function Scene() {
     }
   };
 
+  // Loading progress handler
+  const handleLoadingProgress = (progress: number, status: string) => {
+    updateProgress(progress, status);
+  };
+
   // Initialize color system when model loads
   useEffect(() => {
     const timer = setTimeout(() => {
       console.log('🔧 Initializing color system...');
+      updateProgress(95, 'Khởi tạo hệ thống màu sắc...');
+      
       const materialManager = modelRef.current?.getMaterialManager();
       
       if (materialManager) {
@@ -227,51 +236,63 @@ export default function Scene() {
         
         // Debug call
         materialManager.debugParts();
+        
+        // Finish loading
+        setTimeout(() => {
+          finishLoading();
+        }, 500);
       } else {
         console.error('❌ MaterialManager not found during initialization');
       }
     }, 2000); // Increase delay để đảm bảo model đã load hoàn toàn
 
     return () => clearTimeout(timer);
-  }, [availableAnimations]); // Trigger khi animations load xong
+  }, [availableAnimations, updateProgress, finishLoading]); // Trigger khi animations load xong
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <ControlPanel
-        onAnimationPlay={handleAnimationPlay}
-        onResetRotation={handleResetRotation}
-        onToggleAutoRotation={handleToggleAutoRotation}
-        isAutoRotating={isAutoRotating}
-        availableAnimations={availableAnimations}
-      />
-
-      <ColorPicker
-        onColorChange={handleColorChange}
-        availableParts={availableParts}
-        currentColors={currentColors}
-        onTestColorChange={handleTestColorChange}
-      />
-
-      <Canvas camera={{ position: [0, 1, 4] }}>
-      {/* Ánh sáng */}
-      <ambientLight intensity={lightIntensity} />
-      <directionalLight position={[5, 5, 5]} />
-
-        {/* Model với animation controls */}
-        <Model
-          ref={modelRef}
+    <>
+      {/* Loading Screen */}
+      <LoadingScreen loadingState={loadingState} />
+      
+      {/* Main Scene */}
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <ControlPanel
+          onAnimationPlay={handleAnimationPlay}
+          onResetRotation={handleResetRotation}
+          onToggleAutoRotation={handleToggleAutoRotation}
           isAutoRotating={isAutoRotating}
-          setIsAutoRotating={setIsAutoRotating}
-          setAvailableAnimations={setAvailableAnimations}
-        />
-        <axesHelper args={[5]} />
-
-      {/* Điều khiển xoay/pan/zoom */}
-        <OrbitControls
-          enableZoom={false}
+          availableAnimations={availableAnimations}
         />
 
-    </Canvas>
-    </div>
+        <ColorPicker
+          onColorChange={handleColorChange}
+          availableParts={availableParts}
+          currentColors={currentColors}
+          onTestColorChange={handleTestColorChange}
+        />
+
+        <Canvas camera={{ position: [0, 1, 4] }}>
+        {/* Ánh sáng */}
+        <ambientLight intensity={lightIntensity} />
+        <directionalLight position={[5, 5, 5]} />
+
+          {/* Model với animation controls */}
+          <Model
+            ref={modelRef}
+            isAutoRotating={isAutoRotating}
+            setIsAutoRotating={setIsAutoRotating}
+            setAvailableAnimations={setAvailableAnimations}
+            onLoadingProgress={handleLoadingProgress}
+          />
+          <axesHelper args={[5]} />
+
+          {/* Điều khiển xoay/pan/zoom */}
+          <OrbitControls
+            enableZoom={false}
+          />
+
+        </Canvas>
+      </div>
+    </>
   );
 }
