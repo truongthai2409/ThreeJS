@@ -4,6 +4,7 @@ interface PartInfo {
   name: string;
   material: THREE.Material;
   mesh: THREE.Mesh;
+  allMeshes: THREE.Mesh[]; // All meshes in this part group
   originalColor: string;
   currentColor: string;
 }
@@ -21,33 +22,91 @@ export class MaterialManager {
   private scanMaterials(): void {
     console.log('🔍 Scanning materials in scene...');
     
+    // Group meshes by part type
+    const partGroups = new Map<string, THREE.Mesh[]>();
+    
     this.scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         console.log(`Found mesh: ${mesh.name || 'unnamed'}`);
         
         if (mesh.material) {
-          const material = mesh.material;
+          // Categorize mesh by name patterns
+          const partCategory = this.categorizeMeshByName(mesh.name || '');
           
-          // Handle both single material and material array
-          if (Array.isArray(material)) {
-            material.forEach((mat, index) => {
-              const partName = `${mesh.name || 'Part'}_${index}`;
-              this.processMaterial(mat, partName, mesh);
-            });
-          } else {
-            const partName = mesh.name || `Mesh_${Math.random().toString(36).substr(2, 9)}`;
-            this.processMaterial(material, partName, mesh);
+          if (!partGroups.has(partCategory)) {
+            partGroups.set(partCategory, []);
           }
+          partGroups.get(partCategory)!.push(mesh);
         }
       }
     });
 
-    console.log(`✅ Found ${this.parts.size} materials to manage`);
+    // Process grouped parts
+    partGroups.forEach((meshes, partName) => {
+      console.log(`📦 Processing part group: ${partName} (${meshes.length} meshes)`);
+      
+      // Use the first mesh as representative, but store all meshes
+      const representativeMesh = meshes[0];
+      const material = Array.isArray(representativeMesh.material) 
+        ? representativeMesh.material[0] 
+        : representativeMesh.material;
+        
+      this.processMaterial(material, partName, representativeMesh, meshes);
+    });
+
+    console.log(`✅ Found ${this.parts.size} part groups to manage`);
     console.log('Available parts:', Array.from(this.parts.keys()));
   }
 
-  private processMaterial(material: THREE.Material, partName: string, mesh: THREE.Mesh): void {
+  // Categorize mesh by name patterns
+  private categorizeMeshByName(meshName: string): string {
+    const name = meshName.toLowerCase();
+    
+    // Car body parts
+    if (name.includes('body') || name.includes('chassis') || name.includes('frame')) {
+      return 'Body';
+    }
+    if (name.includes('hood') || name.includes('bonnet')) {
+      return 'Hood';
+    }
+    if (name.includes('door')) {
+      if (name.includes('front')) return 'Front_Doors';
+      if (name.includes('rear') || name.includes('back')) return 'Rear_Doors';
+      return 'Doors';
+    }
+    if (name.includes('wheel') || name.includes('tire') || name.includes('rim')) {
+      return 'Wheels';
+    }
+    if (name.includes('bumper')) {
+      if (name.includes('front')) return 'Front_Bumper';
+      if (name.includes('rear') || name.includes('back')) return 'Rear_Bumper';
+      return 'Bumper';
+    }
+    if (name.includes('roof') || name.includes('top')) {
+      return 'Roof';
+    }
+    if (name.includes('window') || name.includes('glass') || name.includes('windshield')) {
+      return 'Windows';
+    }
+    if (name.includes('mirror')) {
+      return 'Mirrors';
+    }
+    if (name.includes('light') || name.includes('lamp') || name.includes('headlight')) {
+      return 'Lights';
+    }
+    if (name.includes('grill') || name.includes('grille')) {
+      return 'Grille';
+    }
+    if (name.includes('interior') || name.includes('seat') || name.includes('dashboard')) {
+      return 'Interior';
+    }
+    
+    // Default categorization
+    return meshName || 'Unknown_Part';
+  }
+
+  private processMaterial(material: THREE.Material, partName: string, mesh: THREE.Mesh, allMeshes?: THREE.Mesh[]): void {
     // Only process materials that have color property
     if (material instanceof THREE.MeshStandardMaterial || 
         material instanceof THREE.MeshBasicMaterial ||
@@ -63,6 +122,7 @@ export class MaterialManager {
         name: partName,
         material: material, // Keep reference to original material
         mesh: mesh,
+        allMeshes: allMeshes || [mesh], // Store all meshes in this group
         originalColor: `#${originalColor}`,
         currentColor: `#${originalColor}`
       });
@@ -79,7 +139,6 @@ export class MaterialManager {
       );
     });
     
-    console.log('🎯 Available parts for customization:', parts);
     return parts;
   }
 
@@ -101,26 +160,41 @@ export class MaterialManager {
     }
 
     try {
-      console.log(`🎨 Changing ${partName} from ${part.currentColor} to ${hexColor}`);
+      console.log(`🎨 Changing ${partName} from ${part.currentColor} to ${hexColor} (${part.allMeshes.length} meshes)`);
       
-      // Use the direct approach you suggested
-      if (part.mesh && part.mesh.material) {
-        // Handle array of materials
-        if (Array.isArray(part.mesh.material)) {
-          part.mesh.material.forEach((mat) => {
-            if (mat === part.material) {
-              (mat as THREE.MeshStandardMaterial).color.set(hexColor);
+      let changedCount = 0;
+      
+      // Apply color to all meshes in this part group
+      part.allMeshes.forEach((mesh) => {
+        if (mesh.material) {
+          // Handle array of materials
+          if (Array.isArray(mesh.material)) {
+            mesh.material.forEach((mat) => {
+              if (mat instanceof THREE.MeshStandardMaterial || 
+                  mat instanceof THREE.MeshBasicMaterial ||
+                  mat instanceof THREE.MeshLambertMaterial ||
+                  mat instanceof THREE.MeshPhongMaterial) {
+                mat.color.set(hexColor);
+                changedCount++;
+              }
+            });
+          } else {
+            // Single material
+            const material = mesh.material;
+            if (material instanceof THREE.MeshStandardMaterial || 
+                material instanceof THREE.MeshBasicMaterial ||
+                material instanceof THREE.MeshLambertMaterial ||
+                material instanceof THREE.MeshPhongMaterial) {
+              material.color.set(hexColor);
+              changedCount++;
             }
-          });
-        } else {
-          // Single material
-          if (part.mesh.material === part.material) {
-            (part.mesh.material as THREE.MeshStandardMaterial).color.set(hexColor);
           }
         }
-        
+      });
+      
+      if (changedCount > 0) {
         part.currentColor = hexColor;
-        console.log(`✅ Successfully changed ${partName} to ${hexColor}`);
+        console.log(`✅ Successfully changed ${partName} to ${hexColor} (${changedCount} materials updated)`);
         return true;
       }
     } catch (error) {
@@ -170,13 +244,12 @@ export class MaterialManager {
   debugParts(): void {
     console.log('🔍 Debug: All managed parts:');
     this.parts.forEach((part, name) => {
-      console.log(`- ${name}: ${part.currentColor} (original: ${part.originalColor})`);
+      console.log(`- ${name}: ${part.currentColor} (original: ${part.originalColor}) [${part.allMeshes.length} meshes]`);
     });
   }
 
   // Test function - change all parts to red to verify it works
   testChangeAllToRed(): void {
-    console.log('🧪 Testing: Changing all parts to red...');
     
     this.scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
@@ -204,7 +277,6 @@ export class MaterialManager {
       }
     });
     
-    console.log('✅ Test completed - all parts should be red now');
   }
 
   // Cleanup

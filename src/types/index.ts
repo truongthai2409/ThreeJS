@@ -6,6 +6,8 @@ export interface ModelRef {
   toggleAutoRotation: () => void;
   getMaterialManager: () => MaterialManager | null;
   testColorChange: () => void;
+  openAllDoors: () => void;
+  closeAllDoors: () => void;
 }
 
 export interface PartInfo {

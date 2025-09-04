@@ -6,6 +6,8 @@ interface ControlPanelProps {
   onToggleAutoRotation: () => void;
   isAutoRotating: boolean;
   availableAnimations: string[];
+  onOpenAllDoors?: () => void;
+  onCloseAllDoors?: () => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -13,7 +15,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onResetRotation,
   onToggleAutoRotation,
   isAutoRotating,
-  availableAnimations
+  availableAnimations,
+  onOpenAllDoors,
+  onCloseAllDoors
 }) => {
   const animationLabels: { [key: string]: string } = {
     "anim_TAILGATE_0": "Mở/Đóng Cốp",
@@ -55,7 +59,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           fontSize: '14px',
           opacity: 0.9
         }}>
-          🎬 Animations
+          Animations
         </h4>
         <div style={{
           display: 'grid',
@@ -93,6 +97,81 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
       </div>
 
+      {/* Door Controls */}
+      {(onOpenAllDoors || onCloseAllDoors) && (
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{
+            color: '#fff',
+            marginBottom: '10px',
+            fontSize: '14px',
+            opacity: 0.9
+          }}>
+            Điều Khiển Cửa
+          </h4>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '8px'
+          }}>
+            {onOpenAllDoors && (
+              <button
+                onClick={onOpenAllDoors}
+                style={{
+                  background: 'linear-gradient(45deg, #4CAF50 0%, #66BB6A 100%)',
+                  border: 'none',
+                  color: 'white',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(76, 175, 80, 0.3)';
+                }}
+              >
+                Mở Cửa
+              </button>
+            )}
+
+            {onCloseAllDoors && (
+              <button
+                onClick={onCloseAllDoors}
+                style={{
+                  background: 'linear-gradient(45deg, #F44336 0%, #EF5350 100%)',
+                  border: 'none',
+                  color: 'white',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(244, 67, 54, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(244, 67, 54, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(244, 67, 54, 0.3)';
+                }}
+              >
+                Đóng Cửa
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Rotation Controls */}
       <div style={{ marginBottom: '20px' }}>
         <h4 style={{
@@ -101,7 +180,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           fontSize: '14px',
           opacity: 0.9
         }}>
-          🔄 Điều Khiển Xoay
+           Điều Khiển Xoay
         </h4>
         <div style={{
           display: 'grid',
@@ -133,7 +212,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            {isAutoRotating ? '⏸️ Dừng' : '▶️ Quay'}
+            {isAutoRotating ? 'Dừng' : 'Quay'}
           </button>
 
           <button

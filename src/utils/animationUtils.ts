@@ -107,8 +107,38 @@ export const playModelAnimation = (
 
 // Center model in scene
 export const centerModel = (scene: THREE.Object3D): void => {
-  const box = new THREE.Box3().setFromObject(scene);
-  const center = new THREE.Vector3();
-  box.getCenter(center);
-  scene.position.sub(center);
+  try {
+    console.log('📐 Calculating model bounds...');
+    
+    // Calculate bounding box
+    const box = new THREE.Box3().setFromObject(scene);
+    
+    if (box.isEmpty()) {
+      console.warn('⚠️ Model bounding box is empty, skipping centering');
+      return;
+    }
+    
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    
+    box.getCenter(center);
+    box.getSize(size);
+    
+    console.log('📏 Model size:', size.x.toFixed(2), size.y.toFixed(2), size.z.toFixed(2));
+    console.log('📍 Model center before:', center.x.toFixed(2), center.y.toFixed(2), center.z.toFixed(2));
+    
+    // Center the model by adjusting position
+    scene.position.set(-center.x, -center.y, -center.z);
+    
+    console.log('✅ Model repositioned to:', scene.position.x.toFixed(2), scene.position.y.toFixed(2), scene.position.z.toFixed(2));
+    
+    // Optional: Adjust Y position to sit on ground
+    const minY = box.min.y;
+    scene.position.y = -minY; // Move model so its bottom sits at y=0
+    
+    console.log('🔧 Adjusted Y position for ground placement:', scene.position.y.toFixed(2));
+    
+  } catch (error) {
+    console.error('❌ Error centering model:', error);
+  }
 };

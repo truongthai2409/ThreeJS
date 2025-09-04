@@ -58,23 +58,25 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
       right: '20px',
       zIndex: 1000,
       background: 'rgba(0, 0, 0, 0.9)',
-      borderRadius: '12px',
+      borderRadius: '8px',
       backdropFilter: 'blur(15px)',
       border: '1px solid rgba(255, 255, 255, 0.2)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
       overflow: 'hidden',
-      transition: 'all 0.3s ease'
+      transition: 'all 0.3s ease',
+      maxWidth: '250px', // Giới hạn chiều rộng
+      fontSize: '13px'   // Giảm font size
     }}>
       {/* Toggle Button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         style={{
           width: '100%',
-          padding: '15px 20px',
+          padding: '10px 15px',
           background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)',
           border: 'none',
           color: 'white',
-          fontSize: '16px',
+          fontSize: '14px',
           fontWeight: 'bold',
           cursor: 'pointer',
           display: 'flex',
@@ -82,7 +84,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           justifyContent: 'space-between'
         }}
       >
-        <span>🎨 Đổi Màu</span>
+        <span>🎨 Màu</span>
         <span style={{
           transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
           transition: 'transform 0.3s ease'
@@ -93,28 +95,28 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div style={{ padding: '20px', minWidth: '280px' }}>
+        <div style={{ padding: '15px', minWidth: '240px' }}>
           {/* Part Selection */}
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: '12px' }}>
             <h4 style={{
               color: '#fff',
-              fontSize: '14px',
-              marginBottom: '8px',
+              fontSize: '12px',
+              marginBottom: '6px',
               opacity: 0.9
             }}>
-              🎯 Chọn bộ phận:
+              🎯 Bộ phận:
             </h4>
             <select
               value={selectedPart}
               onChange={(e) => setSelectedPart(e.target.value)}
               style={{
                 width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
+                padding: '6px 10px',
+                borderRadius: '4px',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
                 background: 'rgba(255, 255, 255, 0.1)',
                 color: '#fff',
-                fontSize: '14px',
+                fontSize: '12px',
                 cursor: 'pointer'
               }}
             >
@@ -130,26 +132,26 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           {selectedPart && (
             <>
               {/* Current Color */}
-              <div style={{ marginBottom: '15px' }}>
+              <div style={{ marginBottom: '10px' }}>
                 <h4 style={{
                   color: '#fff',
-                  fontSize: '14px',
-                  marginBottom: '8px',
+                  fontSize: '12px',
+                  marginBottom: '6px',
                   opacity: 0.9
                 }}>
-                  🎨 Màu hiện tại:
+                  🎨 Hiện tại:
                 </h4>
                 <div style={{
                   width: '100%',
-                  height: '35px',
+                  height: '28px',
                   backgroundColor: currentColors[selectedPart] || '#808080',
-                  borderRadius: '6px',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#fff',
-                  fontSize: '12px',
+                  fontSize: '10px',
                   fontWeight: 'bold',
                   textShadow: '1px 1px 2px rgba(0,0,0,0.8)'
                 }}>
@@ -158,27 +160,27 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
               </div>
 
               {/* Color Picker */}
-              <div style={{ marginBottom: '15px' }}>
+              <div style={{ marginBottom: '10px' }}>
                 <input
                   type="color"
                   value={currentColors[selectedPart] || '#808080'}
                   onChange={(e) => handleColorChange(e.target.value)}
                   style={{
                     width: '100%',
-                    height: '40px',
+                    height: '32px',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     cursor: 'pointer'
                   }}
                 />
               </div>
 
               {/* Preset Colors */}
-              <div style={{ marginBottom: '15px' }}>
+              <div style={{ marginBottom: '10px' }}>
                 <h4 style={{
                   color: '#fff',
-                  fontSize: '14px',
-                  marginBottom: '8px',
+                  fontSize: '12px',
+                  marginBottom: '6px',
                   opacity: 0.9
                 }}>
                   🎭 Màu có sẵn:
@@ -186,20 +188,20 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(6, 1fr)',
-                  gap: '6px'
+                  gap: '4px'
                 }}>
                   {presetColors.map((color) => (
                     <button
                       key={color}
                       onClick={() => handleColorChange(color)}
                       style={{
-                        width: '30px',
-                        height: '30px',
+                        width: '24px',
+                        height: '24px',
                         backgroundColor: color,
                         border: currentColors[selectedPart] === color 
-                          ? '3px solid #fff' 
-                          : '2px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '4px',
+                          ? '2px solid #fff' 
+                          : '1px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: '3px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease'
                       }}
@@ -218,8 +220,8 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: '8px',
-                marginBottom: '15px'
+                gap: '6px',
+                marginBottom: '10px'
               }}>
                 <button
                   onClick={() => handleColorChange('#808080')}
@@ -227,10 +229,10 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                     background: 'linear-gradient(45deg, #666 0%, #999 100%)',
                     border: 'none',
                     color: 'white',
-                    padding: '8px 10px',
-                    borderRadius: '4px',
+                    padding: '6px 8px',
+                    borderRadius: '3px',
                     cursor: 'pointer',
-                    fontSize: '11px',
+                    fontSize: '10px',
                     fontWeight: '500'
                   }}
                 >
@@ -245,10 +247,10 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                     background: 'linear-gradient(45deg, #ff6b6b 0%, #ffa726 100%)',
                     border: 'none',
                     color: 'white',
-                    padding: '8px 10px',
-                    borderRadius: '4px',
+                    padding: '6px 8px',
+                    borderRadius: '3px',
                     cursor: 'pointer',
-                    fontSize: '11px',
+                    fontSize: '10px',
                     fontWeight: '500'
                   }}
                 >
@@ -260,7 +262,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 
           {/* Test Button - Always visible when expanded */}
           {isExpanded && onTestColorChange && (
-            <div style={{ marginTop: '15px' }}>
+            <div style={{ marginTop: '10px' }}>
               <button
                 onClick={onTestColorChange}
                 style={{
@@ -268,23 +270,23 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                   background: 'linear-gradient(45deg, #ff0000 0%, #ff6b6b 100%)',
                   border: 'none',
                   color: 'white',
-                  padding: '12px 15px',
-                  borderRadius: '6px',
+                  padding: '8px 12px',
+                  borderRadius: '4px',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '11px',
                   fontWeight: 'bold',
-                  boxShadow: '0 4px 15px rgba(255, 0, 0, 0.3)'
+                  boxShadow: '0 2px 8px rgba(255, 0, 0, 0.3)'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 0, 0, 0.4)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 0, 0, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 0, 0, 0.3)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(255, 0, 0, 0.3)';
                 }}
               >
-                🧪 Test: Đổi Tất Cả Thành Đỏ
+                🧪 Test All Red
               </button>
             </div>
           )}
