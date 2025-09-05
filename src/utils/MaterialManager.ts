@@ -101,8 +101,6 @@ export class MaterialManager {
     if (name.includes('interior') || name.includes('seat') || name.includes('dashboard')) {
       return 'Interior';
     }
-    
-    // Default categorization
     return meshName || 'Unknown_Part';
   }
 

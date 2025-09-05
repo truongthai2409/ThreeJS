@@ -1,0 +1,213 @@
+/* ColorPicker Component Styles */
+.colorPicker {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-width: 250px;
+  font-size: 13px;
+}
+
+.toggleButton {
+  width: 100%;
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.expandIcon {
+  transition: transform 0.3s ease;
+}
+
+.expandIcon.expanded {
+  transform: rotate(180deg);
+}
+
+.expandIcon.collapsed {
+  transform: rotate(0deg);
+}
+
+.content {
+  padding: 15px;
+  min-width: 240px;
+}
+
+.section {
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  color: #fff;
+  font-size: 12px;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.partSelect {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.partSelect option {
+  background: #333;
+}
+
+.currentColor {
+  width: 100%;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.colorInput {
+  width: 100%;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.presetColors {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.presetColorButton {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.presetColorButton.selected {
+  border: 2px solid #fff;
+}
+
+.presetColorButton:hover {
+  transform: scale(1.1);
+}
+
+.quickActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.quickActionButton {
+  border: none;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.resetButton {
+  background: linear-gradient(45deg, #666 0%, #999 100%);
+}
+
+.randomButton {
+  background: linear-gradient(45deg, #ff6b6b 0%, #ffa726 100%);
+}
+
+.testButton {
+  width: 100%;
+  background: linear-gradient(45deg, #ff0000 0%, #ff6b6b 100%);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.testButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .colorPicker {
+    top: 10px;
+    right: 10px;
+    max-width: 200px;
+    font-size: 12px;
+  }
+
+  .content {
+    padding: 12px;
+    min-width: 180px;
+  }
+
+  .presetColors {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+
+  .presetColorButton {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .colorPicker {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    left: 5px;
+    max-width: none;
+    font-size: 11px;
+  }
+
+  .content {
+    padding: 10px;
+    min-width: auto;
+  }
+
+  .quickActions {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .presetColors {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

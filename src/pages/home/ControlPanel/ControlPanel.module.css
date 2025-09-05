@@ -1,0 +1,357 @@
+/* ControlPanel Component Styles */
+.controlPanel {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  /* padding: 20px; */
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 250px;
+}
+
+.title {
+  color: #fff;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.toggleButton {
+  width: 100%;
+  padding: 12px 15px;
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.toggleButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.expandIcon {
+  transition: transform 0.3s ease;
+  font-size: 12px;
+}
+
+.expandIcon.expanded {
+  transform: rotate(180deg);
+}
+
+.expandIcon.collapsed {
+  transform: rotate(0deg);
+}
+
+.content {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.content.expanded {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 14px;
+  opacity: 0.9;
+  margin-left: 10px;
+}
+
+.animationGrid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+.animationButton {
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  margin: 0px 10px;
+}
+
+.animationButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.doorControlsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0px 10px;
+}
+
+.doorButton {
+  border: none;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.openButton {
+  background: linear-gradient(45deg, #4CAF50 0%, #66BB6A 100%);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.openButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.closeButton {
+  background: linear-gradient(45deg, #F44336 0%, #EF5350 100%);
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.closeButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+}
+
+.rotationGrid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  margin: 0px 10px;
+}
+
+.rotationButton {
+  border: none;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.autoRotateButton {
+  transition: all 0.3s ease;
+}
+
+.autoRotateButton.active {
+  background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+  box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+}
+
+.autoRotateButton.inactive {
+  background: linear-gradient(45deg, #ff6b6b 0%, #ffa726 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.autoRotateButton:hover {
+  transform: translateY(-2px);
+}
+
+.resetButton {
+  background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.resetButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .controlPanel {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    min-width: auto;
+    padding: 15px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .title {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .toggleButton {
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .expandIcon {
+    font-size: 11px;
+  }
+
+  .section {
+    margin-bottom: 15px;
+    padding: 0px 10px;
+  }
+
+  .sectionTitle {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .animationGrid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .animationButton {
+    padding: 10px 15px;
+    font-size: 11px;
+  }
+
+  .doorControlsGrid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .doorButton {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .rotationGrid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .rotationButton {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .controlPanel {
+    top: 8px;
+    left: 15px;
+    min-width: 220px;
+  }
+
+  .title {
+    font-size: 17px;
+    margin-bottom: 13px;
+  }
+
+  .toggleButton {
+    padding: 11px 13px;
+    font-size: 13px;
+  }
+
+  .animationGrid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .animationButton {
+    padding: 9px 13px;
+    font-size: 11px;
+  }
+
+  .doorControlsGrid {
+    gap: 7px;
+  }
+
+  .doorButton {
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+
+  .rotationGrid {
+    gap: 7px;
+  }
+
+  .rotationButton {
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+}
+
+/* Compact Mobile View */
+@media (max-width: 480px) {
+  .controlPanel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    border-radius: 15px 15px 0 0;
+    margin: 4px;
+    max-height: 60vh;
+  }
+
+  .title {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .toggleButton {
+    padding: 10px 15px;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .expandIcon {
+    font-size: 10px;
+  }
+
+  .section {
+    margin-bottom: 10px;
+  }
+
+  .sectionTitle {
+    font-size: 12px;
+    margin-left: 12px;
+    margin-bottom: 6px;
+  }
+
+  .animationButton,
+  .doorButton,
+  .rotationButton {
+    padding: 6px 8px;
+    font-size: 10px;
+    margin: 0px 10px;
+  }
+}

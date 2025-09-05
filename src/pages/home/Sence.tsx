@@ -5,12 +5,12 @@ import { useGLTF } from "@react-three/drei";
 // import { useControls } from "leva";
 import gsap from "gsap";
 import * as THREE from "three";
-import ControlPanel from "./ControlPanel";
-import ColorPicker from "./ColorPicker";
-import LoadingScreen from "./ui/LoadingScreen";
-import { MaterialManager } from "../utils/MaterialManager";
-import type { ModelRef } from "../types";
-import { useLoadingProgress } from "../hooks/useLoadingProgress";
+import ControlPanel from "./ControlPanel/ControlPanel";
+import ColorPicker from "./ColorPicker/ColorPicker";
+import LoadingScreen from "../../components/ui/LoadingScreen";
+import { MaterialManager } from "../../utils/MaterialManager";
+import type { ModelRef } from "../../types";
+import { useLoadingProgress } from "../../hooks/useLoadingProgress";
 
 const Model = forwardRef<ModelRef, {
   isAutoRotating: boolean;
@@ -191,16 +191,11 @@ const Model = forwardRef<ModelRef, {
   useEffect(() => {
     if (scene && meshRef.current) {
       console.log('🎯 Centering model...');
-
-      // Tính bounding box
       const box = new THREE.Box3().setFromObject(scene);
       const center = new THREE.Vector3();
       box.getCenter(center);
-
       // Dịch model để tâm nó trùng gốc (0,0,0)
       scene.position.sub(center);
-
-      console.log('✅ Model centered at origin:', scene.position.x.toFixed(2), scene.position.y.toFixed(2), scene.position.z.toFixed(2));
     }
   }, [scene]);
 

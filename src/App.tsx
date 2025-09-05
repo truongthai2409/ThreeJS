@@ -1,15 +1,9 @@
-import { Scene } from "./components";
+import { Scene } from "./pages/home";
+import styles from "./index.module.css";
 
 function App() {
   return (
-    <div style={{ 
-      width: "100vw", 
-      height: "100vh", 
-      background: "#dddcdc",
-      margin: 0,
-      padding: 0,
-      overflow: "hidden"
-    }}>
+    <div className={styles.container}>
       <Scene />
     </div>
   );
