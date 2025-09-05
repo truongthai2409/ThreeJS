@@ -17,13 +17,11 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   const [selectedPart, setSelectedPart] = useState<string>('');
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  // Preset colors for quick selection
   const presetColors = [
     '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
     '#800080', '#FFA500', '#FFC0CB', '#808080', '#000000', '#FFFFFF'
   ];
 
-  // Common car part names mapping
   const partLabels: { [key: string]: string } = {
     'Body': '🚗 Thân xe',
     'Hood': '🎯 Nắp capo',
@@ -46,7 +44,6 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 
   const handleColorChange = (color: string) => {
     if (selectedPart && color) {
-      console.log(`Changing ${selectedPart} to ${color}`);
       onColorChange(selectedPart, color);
     }
   };

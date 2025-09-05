@@ -6,6 +6,10 @@ export class AnimationController {
   private rotationRef: React.MutableRefObject<{ x: number; y: number; z: number }>;
   private autoRotationRef: React.MutableRefObject<boolean>;
   private scrollTimeout?: number;
+  private raycaster: THREE.Raycaster = new THREE.Raycaster();
+  private mouse: THREE.Vector2 = new THREE.Vector2();
+  private hoveredObject: THREE.Object3D | null = null;
+  private hoverCleanup?: () => void;
 
   constructor(
     rotationRef: React.MutableRefObject<{ x: number; y: number; z: number }>,
@@ -14,7 +18,7 @@ export class AnimationController {
     this.rotationRef = rotationRef;
     this.autoRotationRef = autoRotationRef;
   }
-
+  
   // Setup scroll wheel handler
   setupScrollHandler(onAutoRotationChange: (isRotating: boolean) => void): () => void {
     const handleWheel = (event: WheelEvent) => {
@@ -82,6 +86,103 @@ export class AnimationController {
   // Cleanup
   dispose(): void {
     clearTimeout(this.scrollTimeout);
+    if (this.hoverCleanup) {
+      this.hoverCleanup();
+      this.hoverCleanup = undefined;
+    }
+  }
+
+  // Handle hover
+  setupHoverHandler(
+    meshRef: React.RefObject<THREE.Group | null>,
+    camera: THREE.Camera,
+    domElement: HTMLElement,
+    onAutoRotationChange: (isRotating: boolean) => void,
+    options?: {
+      filter?: (object: THREE.Object3D) => boolean;
+    }
+  ): () => void {
+    const filter = options?.filter;
+    let wasAutoRotating = this.autoRotationRef.current;
+
+    const handlePointerMove = (event: MouseEvent) => {
+      const rect = domElement.getBoundingClientRect();
+      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, camera);
+      const root = meshRef.current;
+      if (!root) {
+        // Resume auto rotation if we were hovering
+        if (this.hoveredObject && wasAutoRotating) {
+          this.autoRotationRef.current = true;
+          onAutoRotationChange(true);
+        }
+        this.hoveredObject = null;
+        domElement.style.cursor = 'default';
+        return;
+      }
+
+      const intersects = this.raycaster.intersectObject(root, true);
+      const first = intersects.find(i => (filter ? filter(i.object) : true));
+
+      if (!first) {
+        // Not hovering over model - resume auto rotation if we were hovering before
+        if (this.hoveredObject && wasAutoRotating) {
+          this.autoRotationRef.current = true;
+          onAutoRotationChange(true);
+        }
+        this.hoveredObject = null;
+        domElement.style.cursor = 'default';
+        return;
+      }
+
+      const newObject = first.object;
+      if (this.hoveredObject === newObject) {
+        // Still hovering same object - no change
+        return;
+      }
+
+      // Started hovering over model
+      if (!this.hoveredObject) {
+        wasAutoRotating = this.autoRotationRef.current;
+        if (wasAutoRotating) {
+          this.autoRotationRef.current = false;
+          onAutoRotationChange(false);
+        }
+      }
+
+      this.hoveredObject = newObject;
+      domElement.style.cursor = 'pointer';
+    };
+
+    const handlePointerLeave = () => {
+      // Resume auto rotation when leaving canvas area
+      if (this.hoveredObject && wasAutoRotating) {
+        this.autoRotationRef.current = true;
+        onAutoRotationChange(true);
+      }
+      this.hoveredObject = null;
+      domElement.style.cursor = 'default';
+    };
+
+    domElement.addEventListener('mousemove', handlePointerMove, { passive: true });
+    domElement.addEventListener('mouseleave', handlePointerLeave, { passive: true });
+
+    const cleanup = () => {
+      domElement.removeEventListener('mousemove', handlePointerMove as any);
+      domElement.removeEventListener('mouseleave', handlePointerLeave as any);
+      // Resume auto rotation on cleanup if we were hovering
+      if (this.hoveredObject && wasAutoRotating) {
+        this.autoRotationRef.current = true;
+        onAutoRotationChange(true);
+      }
+      this.hoveredObject = null;
+    };
+
+    // Track cleanup to run from dispose as well
+    this.hoverCleanup = cleanup;
+    return cleanup;
   }
 }
 
@@ -108,35 +209,23 @@ export const playModelAnimation = (
 // Center model in scene
 export const centerModel = (scene: THREE.Object3D): void => {
   try {
-    console.log('📐 Calculating model bounds...');
-    
     // Calculate bounding box
     const box = new THREE.Box3().setFromObject(scene);
-    
     if (box.isEmpty()) {
-      console.warn('⚠️ Model bounding box is empty, skipping centering');
       return;
     }
-    
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
     
     box.getCenter(center);
     box.getSize(size);
-    
-    console.log('📏 Model size:', size.x.toFixed(2), size.y.toFixed(2), size.z.toFixed(2));
-    console.log('📍 Model center before:', center.x.toFixed(2), center.y.toFixed(2), center.z.toFixed(2));
-    
+
     // Center the model by adjusting position
     scene.position.set(-center.x, -center.y, -center.z);
-    
-    console.log('✅ Model repositioned to:', scene.position.x.toFixed(2), scene.position.y.toFixed(2), scene.position.z.toFixed(2));
     
     // Optional: Adjust Y position to sit on ground
     const minY = box.min.y;
     scene.position.y = -minY; // Move model so its bottom sits at y=0
-    
-    console.log('🔧 Adjusted Y position for ground placement:', scene.position.y.toFixed(2));
     
   } catch (error) {
     console.error('❌ Error centering model:', error);

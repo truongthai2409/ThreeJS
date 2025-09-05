@@ -9,7 +9,7 @@ interface PartInfo {
   currentColor: string;
 }
 
-export class MaterialManager {
+export class MaterialManager { //class convert các mesh từ mô hình
   private parts: Map<string, PartInfo> = new Map();
   private scene: THREE.Object3D;
 
@@ -54,9 +54,6 @@ export class MaterialManager {
         
       this.processMaterial(material, partName, representativeMesh, meshes);
     });
-
-    console.log(`✅ Found ${this.parts.size} part groups to manage`);
-    console.log('Available parts:', Array.from(this.parts.keys()));
   }
 
   // Categorize mesh by name patterns

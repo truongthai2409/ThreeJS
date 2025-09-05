@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useAnimations } from "@react-three/drei";
 import { useGLTF } from "@react-three/drei";
 // import { useControls } from "leva";
@@ -9,6 +9,7 @@ import ControlPanel from "./ControlPanel/ControlPanel";
 import ColorPicker from "./ColorPicker/ColorPicker";
 import LoadingScreen from "../../components/ui/LoadingScreen";
 import { MaterialManager } from "../../utils/MaterialManager";
+import { AnimationController } from "../../utils/animationUtils";
 import type { ModelRef } from "../../types";
 import { useLoadingProgress } from "../../hooks/useLoadingProgress";
 
@@ -23,9 +24,10 @@ const Model = forwardRef<ModelRef, {
   const rotationRef = useRef({ x: 0, y: 0, z: 0 });
   const autoRotationRef = useRef(true);
   const materialManagerRef = useRef<MaterialManager | null>(null);
+  const controllerRef = useRef<AnimationController | null>(null);
+  const { camera, gl } = useThree();
   const { actions, names } = useAnimations(animations, meshRef);
 
-  // Setup animations khi component mount
   useEffect(() => {
     if (names.length > 0) {
       onLoadingProgress(60, 'Đang xử lý animations...');
@@ -35,7 +37,6 @@ const Model = forwardRef<ModelRef, {
 
   // Handle animation play
   useEffect(() => {
-    // Sync auto rotation state
     autoRotationRef.current = isAutoRotating;
   }, [isAutoRotating]);
 
@@ -55,27 +56,45 @@ const Model = forwardRef<ModelRef, {
     }
   });
 
+  // Setup hover handler using AnimationController
+  useEffect(() => {
+    if (!controllerRef.current) {
+      controllerRef.current = new AnimationController(rotationRef as any, autoRotationRef as any);
+    }
+    const ctrl = controllerRef.current;
+    const cleanup = ctrl.setupHoverHandler(
+      meshRef,
+      camera,
+      gl.domElement,
+      setIsAutoRotating,
+      {
+        // Optional: filter to only pause on specific objects
+        // filter: (obj) => obj.name.toLowerCase().includes('body')
+      }
+    );
+    return () => {
+      cleanup();
+      ctrl.dispose();
+    };
+  }, [camera, gl]);
+
   // Animation play
   const playAnimation = (animationName: string) => {
     const action = actions[animationName];
     if (action) {
       Object.values(actions).forEach(a => a?.stop());
       action.reset();
-      action.timeScale = 1; // Đảm bảo chạy forward
+      action.timeScale = 1;
       action.setLoop(THREE.LoopOnce, 1); // Setup animation để chỉ chạy 1 lần
       action.clampWhenFinished = true;
-
-      // Play selected animation
       action.play();
     }
   };
 
   // Reset rotation function
   const resetRotation = () => {
-    // Dừng auto rotation trước khi reset
     autoRotationRef.current = false;
     setIsAutoRotating(false);
-
     gsap.to(rotationRef.current, {
       duration: 1,
       x: 0,
@@ -83,19 +102,16 @@ const Model = forwardRef<ModelRef, {
       z: 0,
       ease: "power2.out",
       onComplete: () => {
-        // Bật lại auto rotation sau khi reset xong
         autoRotationRef.current = true;
         setIsAutoRotating(true);
       }
     });
   };
 
-  // Toggle auto rotation
   const toggleAutoRotation = () => {
     const newState = !isAutoRotating;
 
     if (newState && meshRef.current) {
-      // Khi bật auto rotation, sync vị trí hiện tại
       rotationRef.current.x = meshRef.current.rotation.x;
       rotationRef.current.y = meshRef.current.rotation.y;
       rotationRef.current.z = meshRef.current.rotation.z;
@@ -113,10 +129,8 @@ const Model = forwardRef<ModelRef, {
     }
   }, [scene, onLoadingProgress]);
 
-  // Get material manager
   const getMaterialManager = () => materialManagerRef.current;
 
-  // Test function
   const testColorChange = () => {
     console.log('🧪 Model: Testing color change...');
     if (materialManagerRef.current) {
@@ -124,14 +138,13 @@ const Model = forwardRef<ModelRef, {
     }
   };
 
-  // Door control functions
   const openAllDoors = () => {
     console.log('🚪 Opening all doors...');
-    const doorAnimations = names.filter(name => 
-      name.toLowerCase().includes('door') || 
+    const doorAnimations = names.filter(name =>
+      name.toLowerCase().includes('door') ||
       name.toLowerCase().includes('tailgate')
     );
-    
+
     doorAnimations.forEach(animName => {
       const action = actions[animName];
       if (action) {
@@ -142,17 +155,17 @@ const Model = forwardRef<ModelRef, {
         action.play();
       }
     });
-    
+
     console.log(`✅ Opened ${doorAnimations.length} doors:`, doorAnimations);
   };
 
   const closeAllDoors = () => {
     console.log('🚪 Closing all doors...');
-    const doorAnimations = names.filter(name => 
-      name.toLowerCase().includes('door') || 
+    const doorAnimations = names.filter(name =>
+      name.toLowerCase().includes('door') ||
       name.toLowerCase().includes('tailgate')
     );
-    
+
     doorAnimations.forEach(animName => {
       const action = actions[animName];
       if (action) {
@@ -163,7 +176,7 @@ const Model = forwardRef<ModelRef, {
         action.time = action.getClip().duration; // Set to end
         action.timeScale = -1; // Reverse animation
         action.play();
-        
+
         // Set timeout để reset timeScale sau khi animation kết thúc
         const duration = action.getClip().duration * 1000; // Convert to milliseconds
         setTimeout(() => {
@@ -172,7 +185,7 @@ const Model = forwardRef<ModelRef, {
         }, duration);
       }
     });
-    
+
     console.log(`✅ Closed ${doorAnimations.length} doors:`, doorAnimations);
   };
 
@@ -274,24 +287,19 @@ export default function Scene() {
 
   // Test function
   const handleTestColorChange = () => {
-    console.log('🧪 Scene: Running color change test...');
     modelRef.current?.testColorChange();
   };
 
-  // Door control functions
   const handleOpenAllDoors = () => {
-    console.log('🚪 Scene: Opening all doors...');
     modelRef.current?.openAllDoors();
   };
 
   const handleCloseAllDoors = () => {
-    console.log('🚪 Scene: Closing all doors...');
     modelRef.current?.closeAllDoors();
   };
 
   // Color management functions
   const handleColorChange = (partName: string, color: string) => {
-    console.log(`🎨 Scene: Attempting to change ${partName} to ${color}`);
     const materialManager = modelRef.current?.getMaterialManager();
 
     if (!materialManager) {
@@ -299,11 +307,9 @@ export default function Scene() {
       return;
     }
 
-    console.log('✅ MaterialManager found, calling changePartColor...');
     const success = materialManager.changePartColor(partName, color);
 
     if (success) {
-      console.log('✅ Color change successful, updating state...');
       setCurrentColors(prev => ({
         ...prev,
         [partName]: color
@@ -337,25 +343,22 @@ export default function Scene() {
         setAvailableParts(parts);
         setCurrentColors(colors);
 
-        // Debug call
         materialManager.debugParts();
 
-        // Finish loading
         setTimeout(() => {
           finishLoading();
         }, 500);
       } else {
         console.error('❌ MaterialManager not found during initialization');
       }
-    }, 1000); // Increase delay để đảm bảo model đã load hoàn toàn
+    }, 1000); 
 
     return () => clearTimeout(timer);
-  }, [availableAnimations, updateProgress, finishLoading]); // Trigger khi animations load xong
+  }, [availableAnimations, updateProgress, finishLoading]);
 
   return (
     <>
       <LoadingScreen loadingState={loadingState} />
-
       <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <ControlPanel
           onAnimationPlay={handleAnimationPlay}
@@ -375,9 +378,9 @@ export default function Scene() {
         />
 
         <Canvas camera={{ position: [0, 1, 4] }}>
-      {/* Ánh sáng */}
+          {/* Ánh sáng */}
           <ambientLight intensity={3.5} />
-      <directionalLight position={[5, 5, 5]} />
+          <directionalLight position={[5, 5, 5]} />
 
           {/* Model với animation controls */}
           <Model
@@ -390,12 +393,12 @@ export default function Scene() {
           {/* Hien thi truc */}
           {/* <axesHelper args={[5]} /> */}
 
-      {/* Điều khiển xoay/pan/zoom */}
+          {/* Điều khiển xoay/pan/zoom */}
           <OrbitControls
             enableZoom={false}
           />
 
-    </Canvas>
+        </Canvas>
       </div>
     </>
   );
